@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>—</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=Karla:wght@300;400&display=swap"
+    rel="stylesheet" />
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #F7F5F2;
+      --ink: #111010;
+      --mid: #888580;
+      --rule: #D9D6D0;
+      --serif: 'EB Garamond', Georgia, serif;
+      --sans: 'Karla', sans-serif;
+    }
+
+    html,
+    body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-weight: 300;
+      overflow: hidden;
+    }
+
+    .shell {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 220px;
+      flex-shrink: 0;
+      border-right: 1px solid var(--rule);
+      display: flex;
+      flex-direction: column;
+      padding: 36px 28px;
+      height: 100vh;
+    }
+
+    .logo {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 16px;
+      color: var(--ink);
+      text-decoration: none;
+      margin-bottom: 56px;
+      display: block;
+    }
+
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      text-align: left;
+      font-family: var(--sans);
+      font-size: 11px;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      color: var(--rule);
+      cursor: pointer;
+      padding: 7px 0 7px 24px;
+      transition: color .2s;
+      position: relative;
+    }
+
+    .nav-btn::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0;
+      height: 1px;
+      background: var(--ink);
+      transition: width .3s;
+    }
+
+    .nav-btn.active {
+      color: var(--ink);
+    }
+
+    .nav-btn.active::before {
+      width: 16px;
+    }
+
+    .drive-wrap {
+      margin-top: 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .drive-field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .drive-label {
+      font-size: 9px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--rule);
+    }
+
+    .drive-field input {
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--rule);
+      padding: 5px 0;
+      font-family: var(--sans);
+      font-size: 11px;
+      font-weight: 300;
+      color: var(--ink);
+      outline: none;
+      width: 100%;
+      transition: border-color .2s;
+    }
+
+    .drive-field input:focus {
+      border-bottom-color: var(--ink);
+    }
+
+    .drive-field input::placeholder {
+      color: var(--rule);
+      font-size: 10px;
+    }
+
+    .load-btn {
+      background: none;
+      border: none;
+      font-family: var(--sans);
+      font-size: 10px;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      color: var(--mid);
+      cursor: pointer;
+      padding: 6px 0;
+      text-align: left;
+      transition: color .2s;
+    }
+
+    .load-btn:hover {
+      color: var(--ink);
+    }
+
+    .st {
+      font-size: 10px;
+      color: var(--mid);
+      line-height: 1.6;
+      min-height: 14px;
+    }
+
+    .sidebar-foot {
+      margin-top: auto;
+      font-size: 10px;
+      letter-spacing: .06em;
+      color: var(--rule);
+      line-height: 2;
+    }
+
+    /* ── MAIN ── */
+    .main {
+      flex: 1;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .panel {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .35s;
+    }
+
+    .panel.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .panel-head {
+      padding: 36px 48px 24px;
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .panel-title {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 26px;
+      font-weight: 400;
+    }
+
+    .panel-count {
+      font-size: 11px;
+      letter-spacing: .1em;
+      color: var(--rule);
+    }
+
+    .panel-hint {
+      margin-left: auto;
+      font-size: 10px;
+      letter-spacing: .06em;
+      color: var(--rule);
+    }
+
+    /* horizontal track */
+    .h-track {
+      flex: 1;
+      overflow-x: auto;
+      overflow-y: hidden;
+      display: flex;
+      align-items: center;
+      padding: 28px 48px;
+      gap: 12px;
+      cursor: grab;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .h-track::-webkit-scrollbar {
+      display: none;
+    }
+
+    .h-track.grabbing {
+      cursor: grabbing;
+      user-select: none;
+    }
+
+    /* cards */
+    .card {
+      flex-shrink: 0;
+      height: calc(100vh - 200px);
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      background: var(--rule);
+    }
+
+    .card img {
+      height: 100%;
+      width: auto;
+      display: block;
+      object-fit: cover;
+      filter: grayscale(12%);
+      transition: transform .7s cubic-bezier(.25, .46, .45, .94), filter .4s;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .card:hover img {
+      transform: scale(1.04);
+      filter: grayscale(0%);
+    }
+
+    .card-cap {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 36px 14px 12px;
+      background: linear-gradient(transparent, rgba(17, 16, 16, .5));
+      opacity: 0;
+      transition: opacity .3s;
+    }
+
+    .card:hover .card-cap {
+      opacity: 1;
+    }
+
+    .card-cap span {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 13px;
+      color: rgba(255, 255, 255, .85);
+    }
+
+    /* placeholder */
+    .ph {
+      flex-shrink: 0;
+      height: calc(100vh - 200px);
+      background: #ECEAE6;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: .5
+      }
+
+      50% {
+        opacity: .9
+      }
+    }
+
+    /* progress */
+    .prog {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 1px;
+      background: var(--ink);
+      width: 0%;
+      transition: width .08s linear;
+      pointer-events: none;
+    }
+
+    /* ── LIGHTBOX ── */
+    .lb {
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      background: rgba(17, 16, 16, .97);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s;
+    }
+
+    .lb.on {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .lb>img {
+      max-width: 90vw;
+      max-height: 90vh;
+      object-fit: contain;
+      filter: grayscale(8%);
+      transform: scale(.97);
+      transition: transform .35s;
+    }
+
+    .lb.on>img {
+      transform: scale(1);
+    }
+
+    .lb-x {
+      position: absolute;
+      top: 28px;
+      right: 36px;
+      font-size: 11px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, .25);
+      background: none;
+      border: none;
+      font-family: var(--sans);
+      cursor: pointer;
+      transition: color .2s;
+    }
+
+    .lb-x:hover {
+      color: #fff;
+    }
+
+    .lb-cap {
+      position: absolute;
+      bottom: 32px;
+      left: 48px;
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 15px;
+      color: rgba(255, 255, 255, .3);
+    }
+
+    .lb-n {
+      position: absolute;
+      bottom: 36px;
+      right: 48px;
+      font-size: 10px;
+      letter-spacing: .1em;
+      color: rgba(255, 255, 255, .18);
+    }
+
+    .lb-prev,
+    .lb-next {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: 1px solid rgba(255, 255, 255, .1);
+      color: rgba(255, 255, 255, .25);
+      width: 40px;
+      height: 40px;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .2s;
+    }
+
+    .lb-prev:hover,
+    .lb-next:hover {
+      border-color: rgba(255, 255, 255, .4);
+      color: #fff;
+    }
+
+    .lb-prev {
+      left: 24px;
+    }
+
+    .lb-next {
+      right: 24px;
+    }
+
+    @media(max-width:600px) {
+      .sidebar {
+        width: 160px;
+        padding: 24px 16px;
+      }
+
+      .panel-head {
+        padding: 24px 20px 18px;
+      }
+
+      .h-track {
+        padding: 16px 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="shell">
+
+    <aside class="sidebar">
+      <a class="logo" href="#">tên của bạn</a>
+      <nav class="nav">
+        <button class="nav-btn active" onclick="sw('tranh',this)">tranh vẽ</button>
+        <button class="nav-btn" onclick="sw('doi',this)">đời sống</button>
+      </nav>
+
+      <div class="drive-wrap">
+        <div class="drive-field">
+          <span class="drive-label">tranh vẽ — folder id</span>
+          <input id="id1" type="text" placeholder="1ABC…xyz" />
+        </div>
+        <div class="drive-field">
+          <span class="drive-label">đời sống — folder id</span>
+          <input id="id2" type="text" placeholder="1ABC…xyz" />
+        </div>
+        <button class="load-btn" onclick="loadAll()">tải ảnh →</button>
+        <p class="st" id="st"></p>
+      </div>
+
+      <div class="sidebar-foot">© 2025<br />Hà Nội</div>
+    </aside>
+
+    <main class="main">
+      <!-- tranh -->
+      <div class="panel active" id="panel-tranh">
+        <div class="panel-head">
+          <h2 class="panel-title">tranh vẽ</h2>
+          <span class="panel-count" id="c1"></span>
+          <span class="panel-hint">← cuộn →</span>
+        </div>
+        <div class="h-track" id="g1">
+          <div class="ph" style="width:200px"></div>
+          <div class="ph" style="width:260px"></div>
+          <div class="ph" style="width:180px"></div>
+          <div class="ph" style="width:300px"></div>
+          <div class="ph" style="width:220px"></div>
+          <div class="ph" style="width:240px"></div>
+          <div class="ph" style="width:190px"></div>
+        </div>
+        <div class="prog" id="pb1"></div>
+      </div>
+
+      <!-- đời sống -->
+      <div class="panel" id="panel-doi">
+        <div class="panel-head">
+          <h2 class="panel-title">đời sống</h2>
+          <span class="panel-count" id="c2"></span>
+          <span class="panel-hint">← cuộn →</span>
+        </div>
+        <div class="h-track" id="g2">
+          <div class="ph" style="width:280px"></div>
+          <div class="ph" style="width:200px"></div>
+          <div class="ph" style="width:320px"></div>
+          <div class="ph" style="width:210px"></div>
+          <div class="ph" style="width:260px"></div>
+          <div class="ph" style="width:190px"></div>
+          <div class="ph" style="width:250px"></div>
+        </div>
+        <div class="prog" id="pb2"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- lightbox -->
+  <div class="lb" id="lb">
+    <button class="lb-x" onclick="closeLb()">đóng ×</button>
+    <img id="lbi" src="" alt="" />
+    <p class="lb-cap" id="lbc"></p>
+    <p class="lb-n" id="lbn"></p>
+    <button class="lb-prev" onclick="lbNav(-1)">←</button>
+    <button class="lb-next" onclick="lbNav(1)">→</button>
+  </div>
+
+  <script>
+    /* switch panel */
+    function sw(id, btn) {
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('panel-' + id).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    /* drag scroll */
+    document.querySelectorAll('.h-track').forEach((t, ti) => {
+      let down = false, sx, sl;
+      t.addEventListener('mousedown', e => { down = true; t.classList.add('grabbing'); sx = e.pageX - t.offsetLeft; sl = t.scrollLeft; });
+      window.addEventListener('mouseup', () => { down = false; t.classList.remove('grabbing'); });
+      t.addEventListener('mousemove', e => { if (!down) return; e.preventDefault(); t.scrollLeft = sl - (e.pageX - t.offsetLeft - sx) * 1.2; });
+      let tx, tsl;
+      t.addEventListener('touchstart', e => { tx = e.touches[0].pageX; tsl = t.scrollLeft; }, { passive: true });
+      t.addEventListener('touchmove', e => { t.scrollLeft = tsl + (tx - e.touches[0].pageX); }, { passive: true });
+      const pb = document.getElementById('pb' + (ti + 1));
+      t.addEventListener('scroll', () => {
+        pb.style.width = (t.scrollLeft / (t.scrollWidth - t.clientWidth) * 100) + '%';
+      });
+    });
+
+    /* lightbox */
+    let pool = [], cur = 0;
+    function openLb(items, i) { pool = items; cur = i; setLb(); document.getElementById('lb').classList.add('on'); document.body.style.overflow = 'hidden'; }
+    function setLb() { document.getElementById('lbi').src = pool[cur].src; document.getElementById('lbc').textContent = pool[cur].title; document.getElementById('lbn').textContent = (cur + 1) + ' / ' + pool.length; }
+    function closeLb() { document.getElementById('lb').classList.remove('on'); document.body.style.overflow = ''; }
+    function lbNav(d) { cur = (cur + d + pool.length) % pool.length; setLb(); }
+    document.getElementById('lb').addEventListener('click', e => { if (e.target === e.currentTarget) closeLb(); });
+    document.addEventListener('keydown', e => {
+      if (!document.getElementById('lb').classList.contains('on')) return;
+      if (e.key === 'Escape') closeLb();
+      if (e.key === 'ArrowLeft') lbNav(-1);
+      if (e.key === 'ArrowRight') lbNav(1);
+    });
+
+    /* render */
+    function render(gid, cid, items) {
+      const g = document.getElementById(gid), c = document.getElementById(cid);
+      g.innerHTML = '';
+      c.textContent = items.length + ' tác phẩm';
+      items.forEach((item, i) => {
+        const d = document.createElement('div');
+        d.className = 'card';
+        d.innerHTML = `<img src="${item.src}" alt="${item.title}" loading="lazy"/><div class="card-cap"><span>${item.title}</span></div>`;
+        d.onclick = () => openLb(items, i);
+        g.appendChild(d);
+      });
+    }
+
+    /* Google Drive */
+    const API_KEY = 'PASTE_YOUR_API_KEY_HERE';
+
+    async function fetchFolder(raw) {
+      if (!raw.trim()) return [];
+      const m = raw.match(/\/folders\/([a-zA-Z0-9_-]+)/);
+      const id = m ? m[1] : raw.trim();
+      const r = await fetch(`https://www.googleapis.com/drive/v3/files?q='${id}'+in+parents+and+mimeType+contains+'image/'&fields=files(id,name)&orderBy=createdTime+desc&key=${API_KEY}`);
+      const d = await r.json();
+      if (d.error) throw new Error(d.error.message);
+      return (d.files || []).map(f => ({ src: `https://drive.google.com/thumbnail?id=${f.id}&sz=w1200`, title: f.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ') }));
+    }
+
+    async function loadAll() {
+      const st = document.getElementById('st');
+      if (API_KEY === 'PAIzaSyADumc792trF71G0CUeTaF2kGc1VHH9u6A') { st.textContent = 'Cần thay API key trong file HTML.'; return; }
+      const v1 = document.getElementById('id1').value, v2 = document.getElementById('id2').value;
+      if (!v1 && !v2) { st.textContent = 'Nhập ít nhất 1 Folder ID.'; return; }
+      st.textContent = 'Đang tải…';
+      try {
+        const [a, b] = await Promise.all([fetchFolder(v1), fetchFolder(v2)]);
+        if (a.length) render('g1', 'c1', a);
+        if (b.length) render('g2', 'c2', b);
+        st.textContent = '';
+      } catch (e) { st.textContent = 'Lỗi: ' + e.message; }
+    }
+
+    [1, 2].forEach(n => { document.getElementById('id' + n).addEventListener('keydown', e => { if (e.key === 'Enter') loadAll(); }); });
+  </script>
+</body>
+
+</html>
