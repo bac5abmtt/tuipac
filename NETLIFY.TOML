@@ -1,0 +1,5 @@
+[[plugins]]
+  package = "netlify-plugin-inline-functions-env" #Tiện ích tự động điền biến
+
+[build]
+  command = "sed -i \"s/const API_KEY      = '';/const API_KEY      = '$DRIVE_API_KEY';/g\" index.html"
