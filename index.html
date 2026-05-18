@@ -895,7 +895,7 @@
 
     async function fetchFolder(id) {
       if (!id || id.startsWith('PASTE_')) return [];
-      const r = await fetch(`https://www.googleapis.com/drive/v3/files?q='${id}'+in+parents+and+mimeType+contains+'image/'&fields=files(id,name)&orderBy=name&key=${API_KEY}`);
+      const r = await fetch(`https://www.googleapis.com/drive/v3/files?q='${id}'+in+parents+and+mimeType+contains+'image/'&fields=files(id,name)&orderBy=name desc&key=${API_KEY}`);
       const d = await r.json();
       if (d.error) { console.warn(d.error.message); return []; }
       return (d.files || []).map(f => ({
