@@ -889,7 +889,9 @@
     }
 
     /* ── GOOGLE DRIVE ── */
-    const API_KEY = 'AIzaSyADumc792trF71G0CUeTaF2kGc1VHH9u6A';
+    fetch('/.netlify/functions/get-drive-data')
+      .then(response => response.json())
+      .then(data => console.log(data));
     const FOLDER_TRANH = '1GxV_tVPWliZcMsrBnH2m5ILYTcYTTrIq';  // ← Folder ID tranh vẽ
     const FOLDER_DOI = '17C5HVxbTwNmpbkXeOep8-S4JnKrrqw0u';  // ← Folder ID đời sống
 
