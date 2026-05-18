@@ -630,11 +630,11 @@
 
     <!-- SIDEBAR -->
     <aside class="sidebar">
-      <a class="logo" href="#">PacNeh</a>
+      <a class="logo" href="#">tên của bạn</a>
       <nav class="nav">
-        <button class="nav-btn active" onclick="sw('tranh', this)">Paiting</button>
-        <button class="nav-btn" onclick="sw('doi',   this)">Photos</button>
-        <button class="nav-btn" onclick="sw('about', this)">About</button>
+        <button class="nav-btn active" onclick="sw('tranh', this)">tranh vẽ</button>
+        <button class="nav-btn" onclick="sw('doi',   this)">đời sống</button>
+        <button class="nav-btn" onclick="sw('about', this)">about</button>
       </nav>
       <div class="sidebar-foot">© 2025<br />Hà Nội</div>
     </aside>
@@ -644,7 +644,7 @@
       <!-- TRANH VẼ -->
       <div class="panel active" id="panel-tranh">
         <div class="pan-head">
-          <h2 class="pan-title">Painting</h2>
+          <h2 class="pan-title">tranh vẽ</h2>
           <span class="pan-count" id="c1"></span>
           <div class="pan-arrows">
             <button class="arr-btn" id="prev1" onclick="move('g1',-1)" disabled>←</button>
@@ -667,7 +667,7 @@
       <!-- ĐỜI SỐNG -->
       <div class="panel" id="panel-doi">
         <div class="pan-head">
-          <h2 class="pan-title">Photos</h2>
+          <h2 class="pan-title">đời sống</h2>
           <span class="pan-count" id="c2"></span>
           <div class="pan-arrows">
             <button class="arr-btn" id="prev2" onclick="move('g2',-1)" disabled>←</button>
@@ -696,8 +696,7 @@
 
           <!-- ẢNH — thay src="" bằng link ảnh của bạn -->
           <div class="about-photo">
-            <img src="https://docs.google.com/uc?export=view&id=1VFFNMQT2WFA_bjOlW24w0vzo9v0NG14M" alt="ảnh của tôi"
-              id="about-img" onerror="this.style.display='none'" />
+            <img src="" alt="ảnh của tôi" id="about-img" onerror="this.style.display='none'" />
             <div class="about-photo-ph" id="about-ph">
               <svg width="40" height="50" viewBox="0 0 40 50" fill="none">
                 <rect x="2" y="2" width="36" height="46" rx="1" stroke="#7A7A7A" stroke-width=".8" fill="none" />
@@ -711,11 +710,11 @@
           <div class="about-text">
             <span class="about-label">về tôi</span>
             <!-- SỬA tên, bio, vị trí bên dưới -->
-            <h2 class="about-name">Mình tên là<br /><em>Pac nehhh.</em></h2>
+            <h2 class="about-name">Tên của<br /><em>bạn.</em></h2>
             <div class="about-bio">
-              <p>Mình thích vẽ, chụp lại mọi thứ mình thíchhhh , và... mình thích trồng cây ngắm nhìn nó, bae mình nói
-                mình tính giống người già... hiuhiuuu.</p>
-              <p>À và người tính già này thích skrtttt ván!!!</p>
+              <p>Viết vài dòng giới thiệu bản thân ở đây — bạn là ai, bạn vẽ vì điều gì, phong cách của bạn hình thành
+                như thế nào.</p>
+              <p>Đây là nơi để kể câu chuyện của mình một cách tự nhiên, không cần quá chỉn chu.</p>
             </div>
             <p class="about-loc">Hà Nội, Việt Nam</p>
           </div>
@@ -896,7 +895,7 @@
 
     async function fetchFolder(id) {
       if (!id || id.startsWith('PASTE_')) return [];
-      const r = await fetch(`https://www.googleapis.com/drive/v3/files?q='${id}'+in+parents+and+mimeType+contains+'image/'&fields=files(id,name)&orderBy=createdTime+desc&key=${API_KEY}`);
+      const r = await fetch(`https://www.googleapis.com/drive/v3/files?q='${id}'+in+parents+and+mimeType+contains+'image/'&fields=files(id,name)&orderBy=name&key=${API_KEY}`);
       const d = await r.json();
       if (d.error) { console.warn(d.error.message); return []; }
       return (d.files || []).map(f => ({
