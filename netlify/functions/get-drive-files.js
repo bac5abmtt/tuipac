@@ -1,25 +1,53 @@
-export const handler = async (event) => {
-    // Lấy các tham số (query) từ frontend gửi lên (nếu có)
-    const folderId = event.queryStringParameters.folderId || '1GxV_tVPWliZcMsrBnH2m5ILYTcYTTrIq';
+const https = require('https');
 
-    // Lấy API Key từ biến môi trường được giấu trên Server Netlify
-    const apiKey = process.env.GOOGLE_DRIVE_API_KEY;
+exports.handler = async (event) => {
+  const id = event.queryStringParameters.id;
+  const apiKey = process.env.GOOGLE_DRIVE_API_KEY;
 
-    const url = `https://googleapis.com{folderId}'+in+parents+and+mimeType+contains+'image/'&fields=files(id,name)&orderBy=name&key=${apiKey}`;
+  console.log("=== KIỂM TRA BACKEND ===");
+  console.log("Folder ID:", id);
+  console.log("Có API Key chưa?:", apiKey ? "CÓ" : "KHÔNG");
 
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
+  if (!id) {
+    return { statusCode: 400, body: JSON.stringify({ error: "Thiếu Folder ID" }) };
+  }
+  if (!apiKey) {
+    return { statusCode: 500, body: JSON.stringify({ error: "Chưa cấu hình GOOGLE_DRIVE_API_KEY trên Netlify" }) };
+  }
 
-        return {
-            statusCode: 200,
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
-        };
-    } catch (error) {
-        return {
-            statusCode: 500,
-            body: JSON.stringify({ error: "Lỗi kết nối Google API" }),
-        };
-    }
+  const url = `https://googleapis.com{id}'+in+parents+and+mimeType+contains+'image/'&fields=files(id,name)&orderBy=name&key=${apiKey}`;
+
+  return new Promise((resolve) => {
+    https.get(url, (res) => {
+      let data = '';
+      res.on('data', (chunk) => { data += chunk; });
+      res.on('end', () => {
+        try {
+          const parsed = JSON.parse(data);
+          if (parsed.error) {
+            console.error("Lỗi Google API:", parsed.error.message);
+            resolve({
+              statusCode: res.statusCode || 400,
+              body: JSON.stringify({ error: parsed.error.message })
+            });
+          } else {
+            resolve({
+              statusCode: 200,
+              headers: { 
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*" 
+              },
+              body: data
+            });
+          }
+        } catch (e) {
+          console.error("Lỗi cú pháp JSON:", e.message);
+          resolve({ statusCode: 500, body: JSON.stringify({ error: "Lỗi xử lý dữ liệu" }) });
+        }
+      });
+    }).on('error', (err) => {
+      console.error("Lỗi kết nối mạng:", err.message);
+      resolve({ statusCode: 500, body: JSON.stringify({ error: err.message }) });
+    });
+  });
 };
