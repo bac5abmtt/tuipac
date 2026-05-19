@@ -1,11 +1,19 @@
+const https = require('https');
+
 module.exports = async (req, res) => {
   const id = req.query.id;
   const apiKey = process.env.GOOGLE_DRIVE_API_KEY;
 
-  // Cho phép mọi nguồn gọi đến API này (CORS) để tránh lỗi chặn trình duyệt
+  // Cấu hình CORS để tránh lỗi chặn trình duyệt
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   res.setHeader('Content-Type', 'application/json');
+
+  // Xử lý request OPTIONS preflight từ trình duyệt
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
 
   if (!id) {
     return res.status(400).json({ error: "Thiếu Folder ID" });
@@ -16,16 +24,27 @@ module.exports = async (req, res) => {
 
   const url = `https://googleapis.com{id}'+in+parents+and+mimeType+contains+'image/'&fields=files(id,name)&orderBy=name&key=${apiKey}`;
 
-  try {
-    const googleRes = await fetch(url);
-    const data = await googleRes.json();
-
-    if (data.error) {
-      return res.status(googleRes.status || 400).json({ error: data.error.message });
-    }
-
-    return res.status(200).json(data);
-  } catch (error) {
-    return res.status(500).json({ error: "Lỗi kết nối đến Google API" });
-  }
+  return new Promise((resolve) => {
+    https.get(url, (googleRes) => {
+      let data = '';
+      googleRes.on('data', (chunk) => { data += chunk; });
+      googleRes.on('end', () => {
+        try {
+          const parsed = JSON.parse(data);
+          if (parsed.error) {
+            res.status(googleRes.statusCode || 400).json({ error: parsed.error.message });
+          } else {
+            res.status(200).send(data);
+          }
+          resolve();
+        } catch (e) {
+          res.status(500).json({ error: "Lỗi xử lý dữ liệu từ Google" });
+          resolve();
+        }
+      });
+    }).on('error', (err) => {
+      res.status(500).json({ error: err.message });
+      resolve();
+    });
+  });
 };
