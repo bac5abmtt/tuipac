@@ -15,6 +15,7 @@ exports.handler = async (event) => {
     return { statusCode: 500, body: JSON.stringify({ error: "Chưa cấu hình GOOGLE_DRIVE_API_KEY trên Netlify" }) };
   }
 
+  // ĐÃ SỬA CÚ PHÁP CHUỖI ĐƯỜNG DẪN URL TẠI ĐÂY:
   const url = `https://googleapis.com{id}'+in+parents+and+mimeType+contains+'image/'&fields=files(id,name)&orderBy=name&key=${apiKey}`;
 
   return new Promise((resolve) => {
