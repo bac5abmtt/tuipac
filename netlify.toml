@@ -1,2 +1,0 @@
-[build]
-  command = "sed -i \"s/NETLIFY_REPLACE_KEY/$DRIVE_API_KEY/g\" index.html"
