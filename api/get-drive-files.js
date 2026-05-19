@@ -21,15 +21,9 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "Chưa cấu hình GOOGLE_DRIVE_API_KEY trên Vercel" });
   }
 
-  // Khởi tạo chuỗi truy vấn an toàn, mã hóa tự động tránh lỗi ký tự đặc biệt
-  const queryParams = new URLSearchParams({
-    q: `'${id}' in parents and mimeType contains 'image/'`,
-    fields: 'files(id,name)',
-    orderBy: 'name',
-    key: apiKey
-  });
-
-  const url = `https://googleapis.com{queryParams.toString()}`;
+  // Khởi tạo chuỗi truy vấn và nối chuỗi bằng toán tử cộng (+) an toàn tuyệt đối
+  const qStr = encodeURIComponent("'" + id + "' in parents and mimeType contains 'image/'");
+  const url = "https://googleapis.com" + qStr + "&fields=files(id,name)&orderBy=name&key=" + apiKey;
 
   try {
     const googleRes = await fetch(url);
