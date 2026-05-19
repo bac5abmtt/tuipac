@@ -1,19 +1,18 @@
-const https = require('https');
-
-module.exports = async (req, res) => {
-  const id = req.query.id;
-  const apiKey = process.env.GOOGLE_DRIVE_API_KEY;
-
-  // Cấu hình CORS để tránh lỗi chặn trình duyệt
+export default async function handler(req, res) {
+  // Cấu hình các Header CORS chống chặn trình duyệt
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   res.setHeader('Content-Type', 'application/json');
 
-  // Xử lý request OPTIONS preflight từ trình duyệt
+  // Xử lý request kiểm tra (preflight) từ trình duyệt
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
+
+  // Tách tham số từ URL bằng cấu trúc chuẩn của Vercel
+  const { id } = req.query;
+  const apiKey = process.env.GOOGLE_DRIVE_API_KEY;
 
   if (!id) {
     return res.status(400).json({ error: "Thiếu Folder ID" });
@@ -22,29 +21,28 @@ module.exports = async (req, res) => {
     return res.status(500).json({ error: "Chưa cấu hình GOOGLE_DRIVE_API_KEY trên Vercel" });
   }
 
-  const url = `https://googleapis.com{id}'+in+parents+and+mimeType+contains+'image/'&fields=files(id,name)&orderBy=name&key=${apiKey}`;
-
-  return new Promise((resolve) => {
-    https.get(url, (googleRes) => {
-      let data = '';
-      googleRes.on('data', (chunk) => { data += chunk; });
-      googleRes.on('end', () => {
-        try {
-          const parsed = JSON.parse(data);
-          if (parsed.error) {
-            res.status(googleRes.statusCode || 400).json({ error: parsed.error.message });
-          } else {
-            res.status(200).send(data);
-          }
-          resolve();
-        } catch (e) {
-          res.status(500).json({ error: "Lỗi xử lý dữ liệu từ Google" });
-          resolve();
-        }
-      });
-    }).on('error', (err) => {
-      res.status(500).json({ error: err.message });
-      resolve();
-    });
+  // Khởi tạo chuỗi truy vấn an toàn, mã hóa tự động tránh lỗi ký tự đặc biệt
+  const queryParams = new URLSearchParams({
+    q: `'${id}' in parents and mimeType contains 'image/'`,
+    fields: 'files(id,name)',
+    orderBy: 'name',
+    key: apiKey
   });
-};
+
+  const url = `https://googleapis.com{queryParams.toString()}`;
+
+  try {
+    const googleRes = await fetch(url);
+    const data = await googleRes.json();
+
+    // Nếu Google phản hồi có lỗi cụ thể (quyền truy cập, sai key)
+    if (data.error) {
+      return res.status(googleRes.status || 400).json({ error: data.error.message });
+    }
+
+    // Trả về dữ liệu sạch cho Frontend
+    return res.status(200).json(data);
+  } catch (error) {
+    return res.status(500).json({ error: "Lỗi kết nối hoặc xử lý từ mạng Google" });
+  }
+}
