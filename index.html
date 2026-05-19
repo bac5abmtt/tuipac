@@ -1075,28 +1075,17 @@
     const FOLDER_PRACTICE = '1GxV_tVPWliZcMsrBnH2m5ILYTcYTTrIq';
     const FOLDER_DOI = '17C5HVxbTwNmpbkXeOep8';
 
-    async function fetchFolder(id) {
-      if (!id || id.startsWith('PASTE_')) return [];
-
-      // Gọi qua Netlify Function thay vì gọi trực tiếp Google
-      const r = await fetch(`/.netlify/functions/get-drive-files?id=${id}`);
-      const d = await r.json();
-
-      if (d.error) { console.warn(d.error.message); return []; }
-      return (d.files || []).map(f => ({
-        src: `https://drive.google.com/thumbnail?id=${f.id}&sz=w1200`,
-        title: f.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ')
-      }));
-    }
-
-    async function autoLoad() {
-      if (API_KEY === 'PASTE_YOUR_API_KEY_HERE') return;
-      const [a, b, c] = await Promise.all([fetchFolder(FOLDER_ARTWORK), fetchFolder(FOLDER_DOI), fetchFolder(FOLDER_PRACTICE)]);
-      if (a.length) render('g1', null, a);
-      if (b.length) render('g2', 'c2', b);
-      if (c.length) render('g3', null, c);
-    }
-
+  async function autoLoad() {
+  // Đã xóa dòng check API_KEY cũ ở đây để tránh lỗi
+  const [a, b, c] = await Promise.all([
+    fetchFolder(FOLDER_ARTWORK), 
+    fetchFolder(FOLDER_DOI), 
+    fetchFolder(FOLDER_PRACTICE)
+  ]);
+  if (a.length) render('g1', null, a);
+  if (b.length) render('g2', 'c2', b);
+  if (c.length) render('g3', null, c);
+}
     autoLoad();
 
     window.addEventListener('resize', () => { ['g1', 'g2', 'g3'].forEach(recalc); });
